@@ -13,7 +13,7 @@ module.exports = {
       "SwitchCase": 1
     }],
     "no-multiple-empty-lines": [
-      "error",
+      "warn",
       {
         "max": 1,
         "maxEOF": 0,
@@ -23,16 +23,10 @@ module.exports = {
     quotes: ["warn", "double"],
     semi: ["warn", "always"],
     curly: ["warn", "all"],
-    "no-var": "error",
+    "no-var": "warn",
+    "no-unused-vars": ["warn", { "vars": "all", "args": "after-used", "ignoreRestSiblings": false }],
     "eol-last": ["warn", "always"],
-    "arrow-parens": ["warn", "always"],
     "linebreak-style": ["warn", "unix"],
-    "no-unused-vars": [
-      "warn",
-      {
-        args: "none",
-      }
-    ],
     "prefer-const": [
       "warn",
       {
