@@ -3,8 +3,8 @@ const router = express.Router();
 
 const musicsController = require("../controllers/musicsController");
 const verifyToken = require("../middlewares/verifyToken");
-const { validateCreateMusic } = require("../middlewares/validateMusics");
-const { validateFile } = require("../middlewares/validateFile");
+const validateCreateMusic = require("../middlewares/validateMusics");
+const validateFile = require("../middlewares/validateFile");
 const upload = require("../middlewares/upload");
 
 router.post("/",

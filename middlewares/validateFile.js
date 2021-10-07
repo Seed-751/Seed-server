@@ -29,6 +29,4 @@ function validateFile(req, res, next) {
   next();
 }
 
-module.exports = {
-  validateFile,
-};
+module.exports = validateFile;
