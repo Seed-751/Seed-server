@@ -4,6 +4,19 @@ const createError = require("http-errors");
 const checkValidateError = require("../utils/checkValidateError");
 const { ERROR } = require("../constants");
 
+exports.getMusics = async function (req, res, next) {
+  try {
+    const musics = await Music.find().lean();
+
+    res.json({
+      success: true,
+      data: musics,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.createMusic = async function (req, res, next) {
   const invalidMessage = checkValidateError(req);
 
