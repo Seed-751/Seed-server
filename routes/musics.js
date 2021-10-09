@@ -7,7 +7,8 @@ const validateCreateMusic = require("../middlewares/validateMusics");
 const validateFile = require("../middlewares/validateFile");
 const upload = require("../middlewares/upload");
 
-router.get("/", verifyToken, musicsController.getMusics);
+router.get("/", verifyToken, musicsController.getAllMusics);
+router.get("/:musicId", verifyToken, musicsController.getMusic);
 router.post("/",
   verifyToken,
   upload.fields([
