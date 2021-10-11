@@ -18,6 +18,7 @@
     "express": "~4.16.1",
     "express-validator": "^6.12.2",
     "http-errors": "^1.6.3",
+    "jsmediatags": "^3.9.7",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.1.1",
     "mongoose": "^6.0.8",

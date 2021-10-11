@@ -1,6 +1,7 @@
 const Music = require("../models/Music");
 const createError = require("http-errors");
 
+const getMetaData = require("../utils/getMetaData");
 const checkValidateError = require("../utils/checkValidateError");
 const { ERROR } = require("../constants");
 
@@ -8,7 +9,7 @@ exports.getAllMusics = async function (req, res, next) {
   try {
     const musics = await Music.find().populate("artist").lean();
 
-    res.json({
+    return res.json({
       success: true,
       data: musics,
     });
@@ -29,6 +30,17 @@ exports.createMusic = async function (req, res, next) {
   const { image, audioFiles } = req.files;
 
   try {
+    let songData = [];
+
+    await Promise.all(audioFiles.map((file) => {
+      const fileUrl = file.location;
+      return getMetaData(fileUrl);
+    })).then((result) => {
+      songData = [...result];
+    }).catch((err) => {
+      next(createError(500, ERROR.server));
+    });
+
     const music = await Music.findOne({ title }).lean();
 
     if (music) {
@@ -36,9 +48,6 @@ exports.createMusic = async function (req, res, next) {
     }
 
     const { location: imageLocation } = image[0];
-    const audioLocations = audioFiles.map((audio) => {
-      return audio.location;
-    });
 
     await Music.create({
       title,
@@ -46,7 +55,7 @@ exports.createMusic = async function (req, res, next) {
       image: imageLocation,
       description,
       genre,
-      audios: audioLocations,
+      audios: songData,
     });
 
     return res.json({ success: true });
@@ -60,7 +69,7 @@ exports.getMusic = async function (req, res, next) {
     const musicId = req.params.musicId;
     const music = await Music.findById(musicId).lean();
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         ...music,
