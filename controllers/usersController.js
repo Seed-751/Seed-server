@@ -55,6 +55,8 @@ exports.login = async function (req, res, next) {
       return next(createError(400, ERROR.notFoundPassword));
     }
 
+    const { _id } = originalMember;
+
     const token = jwt.sign(
       { id: originalMember._id },
       YOUR_SECRET_KEY,
@@ -68,6 +70,7 @@ exports.login = async function (req, res, next) {
     res.json({
       success: true,
       data: {
+        _id,
         email,
       },
     });
@@ -80,12 +83,13 @@ exports.authCheck = async function (req, res, next) {
   const { id } = req.userInfo;
 
   try {
-    const { email } = await User.findById(id).lean();
+    const { email, _id } = await User.findById(id).lean();
 
     res.json({
       success: true,
       data: {
         email,
+        _id,
       },
     });
   } catch (err) {

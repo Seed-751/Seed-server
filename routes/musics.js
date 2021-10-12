@@ -3,10 +3,13 @@ const router = express.Router();
 
 const musicsController = require("../controllers/musicsController");
 const verifyToken = require("../middlewares/verifyToken");
-const { validateCreateMusic } = require("../middlewares/validateMusics");
-const { validateFile } = require("../middlewares/validateFile");
+const validateCreateMusic = require("../middlewares/validateMusics");
+const validateFile = require("../middlewares/validateFile");
 const upload = require("../middlewares/upload");
 
+router.get("/", verifyToken, musicsController.getAllMusics);
+router.get("/:musicId", verifyToken, musicsController.getMusic);
+router.post("/payment/:musicId", verifyToken, musicsController.payment);
 router.post("/",
   verifyToken,
   upload.fields([

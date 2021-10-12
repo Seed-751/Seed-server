@@ -12,6 +12,4 @@ function  validateCreateMusic() {
   ];
 }
 
-module.exports = {
-  validateCreateMusic,
-};
+module.exports = validateCreateMusic;

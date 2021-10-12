@@ -17,6 +17,7 @@ const ERROR = {
   notValidImage: "image file이 아닙니다",
   notValidAudio: "audio file이 아닙니다",
   alreadyTitle: "이미 존재하는 title 입니다",
+  failPayment: "결제에 실패하였습니다 다시 시도해주세요",
 };
 
 const EXPIRES_IN = "1h";
