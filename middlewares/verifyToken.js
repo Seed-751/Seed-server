@@ -5,7 +5,7 @@ const YOUR_SECRET_KEY = process.env.YOUR_SECRET_KEY;
 const { ERROR } = require("../constants");
 
 async function verifyToken(req, res, next) {
-  const token = req.headers.authorization;
+  const token = req.headers.cookie.split("=")[1];
 
   try {
     if (!token) {
