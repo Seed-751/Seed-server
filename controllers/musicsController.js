@@ -5,12 +5,13 @@ const axios = require("axios");
 const getMetaData = require("../utils/getMetaData");
 const checkValidateError = require("../utils/checkValidateError");
 const { ERROR } = require("../constants");
+const User = require("../models/User");
 
 const { IMP_API_KEY, IMP_SECRET } = process.env;
 
 exports.getAllMusics = async function (req, res, next) {
   try {
-    const musics = await Music.find().populate("artist").lean();
+    const musics = await Music.find().populate("artist").populate("funding").lean();
 
     return res.json({
       success: true,
@@ -51,14 +52,20 @@ exports.createMusic = async function (req, res, next) {
     }
 
     const { location: imageLocation } = image[0];
+    const target = 1000000 * audioFiles.length;
 
-    await Music.create({
+    const album = await Music.create({
       title,
       artist: userId,
       image: imageLocation,
       description,
       genre,
       audios: songData,
+      funding: { target },
+    });
+
+    await User.findByIdAndUpdate(userId, {
+      $push: { myAlbums: album._id },
     });
 
     return res.json({ success: true });
@@ -70,7 +77,7 @@ exports.createMusic = async function (req, res, next) {
 exports.getMusic = async function (req, res, next) {
   try {
     const musicId = req.params.musicId;
-    const music = await Music.findById(musicId).lean();
+    const music = await Music.findById(musicId).populate("artist").lean();
 
     return res.json({
       success: true,
@@ -83,8 +90,45 @@ exports.getMusic = async function (req, res, next) {
   }
 };
 
+exports.getMyFundings = async function (req, res, next) {
+  const { id: userId } = req.userInfo;
+
+  try {
+    const user = await User.findById(userId).populate("myFundings").lean();
+    const myFundings = user.myFundings;
+
+    return res.json({
+      success: true,
+      data: [
+        ...myFundings,
+      ],
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getMyMusics = async function (req, res, next) {
+  const { id: userId } = req.userInfo;
+
+  try {
+    const user = await User.findById(userId).populate("myAlbums").lean();
+    const myMusics = user.myAlbums;
+
+    return res.json({
+      success: true,
+      data: [
+        ...myMusics,
+      ],
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.payment = async function (req, res, next) {
   const { imp_uid, amountToBePaid, albumId } = req.body;
+  const { id: userId } = req.userInfo;
 
   try {
     const getToken = await axios({
@@ -108,7 +152,14 @@ exports.payment = async function (req, res, next) {
     const { amount, status } = result.data.response;
 
     if (amount === amountToBePaid && status === "paid") {
-      await Music.findByIdAndUpdate(albumId, { fund: amount});
+      await User.findByIdAndUpdate(userId, {
+        $push: { myFundings: albumId },
+      });
+
+      await Music.findByIdAndUpdate(albumId, {
+        $inc: { ["funding.amount"]: amount },
+        $push: { ["funding.donors"]: userId },
+      });
 
       return res.json({
         success: true,

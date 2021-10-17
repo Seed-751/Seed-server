@@ -27,6 +27,21 @@ const songSchema = new mongoose.Schema({
   }
 });
 
+const fundingSchema = new mongoose.Schema({
+  target: {
+    type: Number,
+    required: true,
+  },
+  amount: {
+    type: Number,
+    default: 0,
+  },
+  donors: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  }],
+}, { timestamps: { createdAt: true } });
+
 const musicSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -53,6 +68,10 @@ const musicSchema = new mongoose.Schema({
     type: songSchema,
     required: true,
   }],
+  funding: {
+    type: fundingSchema,
+    required: true,
+  },
 }, { timestamps: { createdAt: true } });
 
 module.exports = mongoose.model("Music", musicSchema);

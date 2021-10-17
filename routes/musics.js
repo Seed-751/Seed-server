@@ -9,7 +9,9 @@ const upload = require("../middlewares/upload");
 
 router.get("/", musicsController.getAllMusics);
 router.get("/:musicId", musicsController.getMusic);
-router.post("/payment/:musicId", verifyToken, musicsController.payment);
+router.get("/myMusics/:userId", verifyToken, musicsController.getMyMusics);
+router.get("/myFundings/:userId", verifyToken, musicsController.getMyFundings);
+router.post("/payment/:musicId/:userId", verifyToken, musicsController.payment);
 router.post("/",
   verifyToken,
   upload.fields([

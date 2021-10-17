@@ -16,7 +16,15 @@ const userSchema = new mongoose.Schema({
   },
   profileImage: {
     type: String,
-  }
+  },
+  myFundings: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Music",
+  }],
+  myAlbums: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Music",
+  }],
 }, { timestamps: { createdAt: true } });
 
 module.exports = mongoose.model("User", userSchema);
