@@ -5,7 +5,7 @@ function handleError(err, req, res, next) {
 
   res.json({
     code: err.status,
-    message: err.message ? err.message : ERROR.server,
+    message: err.message || ERROR.server,
   });
 }
 
