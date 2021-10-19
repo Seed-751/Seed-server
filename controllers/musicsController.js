@@ -10,8 +10,17 @@ const User = require("../models/User");
 const { IMP_API_KEY, IMP_SECRET } = process.env;
 
 exports.getAllMusics = async function (req, res, next) {
+  const { page } = req.query;
+  const pageNumber = Number(page);
+
   try {
-    const musics = await Music.find().populate("artist").populate("funding").lean();
+    const musics = await Music.find()
+      .populate("artist")
+      .populate("funding")
+      .sort({ "_id": -1 })
+      .skip((pageNumber - 1) * 6)
+      .limit(6)
+      .lean();
 
     return res.json({
       success: true,
@@ -75,8 +84,9 @@ exports.createMusic = async function (req, res, next) {
 };
 
 exports.getMusic = async function (req, res, next) {
+  const musicId = req.params.musicId;
+
   try {
-    const musicId = req.params.musicId;
     const music = await Music.findById(musicId).populate("artist").lean();
 
     return res.json({
@@ -167,6 +177,48 @@ exports.payment = async function (req, res, next) {
     }
 
     next(createError(500, ERROR.failPayment));
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.searchMusic = async function (req, res, next) {
+  const { keword } = req.query;
+
+  try {
+    if (!keword) {
+      return res.json({
+        data: [],
+      });
+    }
+
+    const albums = await Music.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "artist",
+          foreignField: "_id",
+          as: "artist",
+        },
+      },
+      { $unwind: "$artist" },
+      {
+        $match: {
+          $or: [
+            { title: { $regex: keword, $options: "i" } },
+            { "artist.name": { $regex: keword, $options: "i" } }
+          ]
+        }
+      }
+    ])
+      .sort({ "_id": -1 });
+
+    return res.json({
+      success: true,
+      data: [
+        ...albums,
+      ],
+    });
   } catch (err) {
     next(err);
   }
