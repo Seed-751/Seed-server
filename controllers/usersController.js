@@ -16,7 +16,9 @@ exports.signup = async function (req, res, next) {
   }
 
   try {
-    const { email, password } = req.body;
+    const { email, password, name } = req.body;
+    const { profileImage } = req.files;
+    const { location: profileLocation } = profileImage[0];
 
     const originalMember = await User.findOne({ email }).lean();
 
@@ -25,7 +27,7 @@ exports.signup = async function (req, res, next) {
     }
 
     const hash = await bcrypt.hash(password, SALT_ROUNDS);
-    await User.create({ email, password: hash });
+    await User.create({ email, password: hash, name, profileImage: profileLocation });
 
     res.json({ success: true });
   } catch (err) {
@@ -92,6 +94,15 @@ exports.authCheck = async function (req, res, next) {
         _id,
       },
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.logout = async function (req, res, next) {
+  try {
+    res.clearCookie("token");
+    res.json({ success: true });
   } catch (err) {
     next(err);
   }
